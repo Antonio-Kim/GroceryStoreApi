@@ -24,6 +24,4 @@ public class Product
 	public decimal Price { get; set; }
 	[Required]
 	public int CurrentStock { get; set; }
-	[Required]
-	public bool InStock { get; set; }
 }
