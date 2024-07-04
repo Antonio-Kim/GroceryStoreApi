@@ -17,10 +17,13 @@ public class Product
 	[MaxLength(100)]
 	public string? Name { get; set; }
 	[Required]
-	public bool InStock { get; set; }
+	[MaxLength]
+	public string? Manufacturer { get; set; }
 	[Required]
 	[Precision(6, 2)]
 	public decimal Price { get; set; }
 	[Required]
 	public int CurrentStock { get; set; }
+	[Required]
+	public bool InStock { get; set; }
 }
