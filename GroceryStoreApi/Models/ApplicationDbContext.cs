@@ -164,7 +164,7 @@ public class ApplicationDbContext : DbContext
 			Id = 5477,
 			Category = "dairy",
 			Name = "Cream Cheese",
-			Manufacturer = "Jack&Mary",
+			Manufacturer = "Jack&Mary Organic Farms",
 			Price = 2.95M,
 			CurrentStock = 12,
 		});
