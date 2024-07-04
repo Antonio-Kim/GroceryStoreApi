@@ -19,11 +19,18 @@ public class ProductsController : ControllerBase
 	}
 
 	[HttpGet(Name = "GetProducts")]
-	public async Task<RestDTO<Product[]>> Get()
+	public async Task<RestDTO<ProductsDTO[]>> GetAllProducts()
 	{
-		var query = _context.Products;
+		var query = _context.Products
+			.Select(p => new ProductsDTO
+			{
+				Id = p.Id,
+				Category = p.Category,
+				Name = p.Name,
+				InStock = p.CurrentStock != 0
+			});
 
-		return new RestDTO<Product[]>
+		return new RestDTO<ProductsDTO[]>
 		{
 			Data = await query.ToArrayAsync(),
 			Links = new List<LinkDTO>
@@ -36,5 +43,32 @@ public class ProductsController : ControllerBase
 				)
 			}
 		};
+	}
+
+	[HttpGet("{id}", Name = "GetProductById")]
+	public async Task<ActionResult<RestDTO<Product>>> GetProductById(int id)
+	{
+		var product = await _context.Products.Where(p => p.Id == id).FirstOrDefaultAsync();
+
+		if (product == null)
+		{
+			return NotFound(new { error = $"No product with id {id}." });
+		}
+
+		var response = new RestDTO<Product>()
+		{
+			Data = product,
+			Links = new List<LinkDTO>()
+			{
+				new LinkDTO
+				(
+					Url.Action(null, "Products", null, Request.Scheme)!,
+					"self",
+					"GET"
+				)
+			}
+		};
+
+		return Ok(response);
 	}
 }
