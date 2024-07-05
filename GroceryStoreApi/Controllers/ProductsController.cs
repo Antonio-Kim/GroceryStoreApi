@@ -19,25 +19,40 @@ public class ProductsController : ControllerBase
 	}
 
 	[HttpGet(Name = "GetProducts")]
-	public async Task<RestDTO<ProductsDTO[]>> GetAllProducts()
+	public async Task<RestDTO<ProductsDTO[]>> GetAllProducts([FromQuery] ProductRequestDTO input)
 	{
-		var query = _context.Products
+		var query = _context.Products.AsQueryable();
+
+		if (!string.IsNullOrEmpty(input.Category))
+			query = query.Where(p => p.Category != null && p.Category.Contains(input.Category));
+
+		if (!string.IsNullOrEmpty(input.Category))
+		{
+			bool inStock = bool.Parse(input.Category);
+			query = query.Where(p => p.CurrentStock > 0 == inStock);
+		}
+
+
+		var products = query
 			.Select(p => new ProductsDTO
 			{
 				Id = p.Id,
 				Category = p.Category,
 				Name = p.Name,
 				InStock = p.CurrentStock != 0
-			});
+			}).Take(input.Results);
 
 		return new RestDTO<ProductsDTO[]>
 		{
-			Data = await query.ToArrayAsync(),
+			Data = await products.ToArrayAsync(),
+			Results = input.Results,
+			Category = input.Category,
+			Available = input.Available,
 			Links = new List<LinkDTO>
 			{
 				new LinkDTO
 				(
-					Url.Action(null, "Products", null, Request.Scheme)!,
+					Url.Action(null, "products", null, Request.Scheme)!,
 					"self",
 					"GET"
 				)
@@ -46,7 +61,8 @@ public class ProductsController : ControllerBase
 	}
 
 	[HttpGet("{id}", Name = "GetProductById")]
-	public async Task<ActionResult<RestDTO<Product>>> GetProductById(int id)
+	[Route("/{id}")]
+	public async Task<ActionResult<object>> GetProductById(int id)
 	{
 		var product = await _context.Products.Where(p => p.Id == id).FirstOrDefaultAsync();
 
@@ -55,20 +71,19 @@ public class ProductsController : ControllerBase
 			return NotFound(new { error = $"No product with id {id}." });
 		}
 
-		var response = new RestDTO<Product>()
+		var links = new List<LinkDTO>()
 		{
-			Data = product,
-			Links = new List<LinkDTO>()
-			{
-				new LinkDTO
-				(
-					Url.Action(null, "Products", null, Request.Scheme)!,
-					"self",
-					"GET"
-				)
-			}
+			new LinkDTO(
+				Url.Action("GetProductById", "products", null, Request.Scheme)!,
+				"self",
+				"GET"
+			),
 		};
 
-		return Ok(response);
+		return new
+		{
+			Data = product,
+			Links = links
+		};
 	}
 }
