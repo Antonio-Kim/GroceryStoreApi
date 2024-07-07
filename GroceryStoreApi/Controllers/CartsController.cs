@@ -147,4 +147,54 @@ public class CartsController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpPut("{cartId}/items/{itemId}")]
+    public async Task<IActionResult> ReplaceItemInCart(string cartId, int itemId, [FromBody] CartDTO input)
+    {
+        if (!Guid.TryParseExact(cartId, "D", out Guid CartId))
+        {
+            return BadRequest("Invalid cartId format.");
+        }
+        var transaction = await _context.Transactions.FirstOrDefaultAsync(t => t.ProductId == itemId);
+        if (transaction == null)
+        {
+            return NotFound("The cart or the item coud not be found.");
+        }
+        var checkProduct = await _context.Products.AnyAsync(p => p.Id == itemId);
+        if (!checkProduct)
+        {
+            return NotFound("Item does not exist in database.");
+        }
+
+        _context.Transactions.Remove(transaction);
+        var newTransaction = new Transactions
+        {
+            CartId = CartId,
+            ProductId = input.productId,
+            Quantity = input.quantity
+        };
+
+        _context.Transactions.Add(newTransaction);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpDelete("{cartId}/items/{itemId}")]
+    public async Task<IActionResult> DeleteItemInCart(string cartId, int itemId)
+    {
+        if (!Guid.TryParseExact(cartId, "D", out Guid CartId))
+        {
+            return BadRequest("Invalid cartId format.");
+        }
+        var transaction = await _context.Transactions.FirstOrDefaultAsync(t => t.ProductId == itemId);
+        if (transaction == null)
+        {
+            return NotFound("The cart or the item coud not be found.");
+        }
+        _context.Transactions.Remove(transaction);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
 }
