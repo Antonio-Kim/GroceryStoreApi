@@ -1,3 +1,4 @@
+using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 
 namespace GroceryStoreApi.Models;
@@ -11,6 +12,8 @@ public class ApplicationDbContext : DbContext
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
+		base.OnModelCreating(modelBuilder);
+
 		modelBuilder.Entity<Product>().HasData(new Product
 		{
 			Id = 4643,
@@ -187,7 +190,25 @@ public class ApplicationDbContext : DbContext
 			CurrentStock = 10,
 		});
 
+		modelBuilder.Entity<Transactions>()
+			.HasKey(t => new { t.ProductId, t.CartId });
+
+		modelBuilder.Entity<Transactions>()
+			.HasOne(t => t.Product)
+			.WithMany(p => p.Transactions)
+			.HasForeignKey(t => t.ProductId)
+			.IsRequired()
+			.OnDelete(DeleteBehavior.Restrict);
+
+		modelBuilder.Entity<Transactions>()
+			.HasOne(t => t.Cart)
+			.WithMany(c => c.Transactions)
+			.HasForeignKey(t => t.CartId)
+			.IsRequired()
+			.OnDelete(DeleteBehavior.Restrict);
 	}
 
 	public DbSet<Product> Products => Set<Product>();
+	public DbSet<Cart> Carts => Set<Cart>();
+	public DbSet<Transactions> Transactions => Set<Transactions>();
 }
