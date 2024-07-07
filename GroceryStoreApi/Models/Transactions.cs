@@ -14,7 +14,7 @@ public class Transactions
 	[Column(Order = 1)]
 	public int ProductId { get; set; }
 	[Required]
-	public int Quantity { get; set; }
+	public int? Quantity { get; set; }
 
 	public Cart? Cart { get; set; }
 	public Product? Product { get; set; }
