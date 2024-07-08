@@ -40,6 +40,14 @@ public class TransactionService : ITransactionService
 			Quantity = quantity
 		};
 
+		var existingTransaction = await _context.Transactions.FirstOrDefaultAsync(t =>
+			t.CartId == CartId && t.ProductId == productId);
+
+		if (existingTransaction != null)
+		{
+			newTransaction.Quantity += existingTransaction?.Quantity ?? 1;
+		}
+
 		try
 		{
 			var transaction = await _context.Transactions.AddAsync(newTransaction);

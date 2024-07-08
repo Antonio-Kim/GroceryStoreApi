@@ -1,3 +1,4 @@
+using System.Data.Common;
 using GroceryStoreApi.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,4 +25,19 @@ public class CartService : ICartService
 		}
 	}
 
+	public async Task<string> NewCartAsync()
+	{
+		Guid newCartId = Guid.NewGuid();
+		var newCart = new Cart { CartId = newCartId };
+		try
+		{
+			_context.Carts.Add(newCart);
+			await _context.SaveChangesAsync();
+			return newCartId.ToString();
+		}
+		catch (DbException ex)
+		{
+			throw new Exception($"Error occured when saving to database: {ex.Message}");
+		}
+	}
 }

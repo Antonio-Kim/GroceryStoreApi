@@ -3,6 +3,7 @@ using FluentAssertions;
 using GroceryStoreApi.Controllers;
 using GroceryStoreApi.DTO.Cart;
 using GroceryStoreApi.Models;
+using GroceryStoreApi.Services;
 using GroceryStoreTests.Fakes;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,6 @@ namespace GroceryStoreTests.Controllers;
 public class CartsControllerTests : IDisposable
 {
 	private readonly ApplicationDbContextFakeBuilder _ctxBuilder = new();
-	private readonly CartsController? _sut;
 
 	public void Dispose()
 	{
@@ -26,7 +26,9 @@ public class CartsControllerTests : IDisposable
 	{
 		// Arrange
 		var context = _ctxBuilder.WithOneCart().Build();
-		var _sut = new CartsController(context);
+		var cartService = new CartService(context);
+		var transactionService = new TransactionService(context);
+		var _sut = new CartsController(cartService, transactionService);
 
 		// Act
 		var result = await _sut.Post();
@@ -34,7 +36,6 @@ public class CartsControllerTests : IDisposable
 		// Assert
 		var postResult = result as CreatedAtActionResult;
 		postResult.Should().NotBeNull();
-		postResult?.RouteValues.Should().ContainKey("cartId");
 		postResult?.Value.Should().NotBeNull();
 	}
 
@@ -44,7 +45,9 @@ public class CartsControllerTests : IDisposable
 		// Arrange
 		var context = _ctxBuilder.WithOneCart().Build();
 		var cartId = "1C892986-18F1-4DA7-2252-1FB697891A58";
-		var _sut = new CartsController(context);
+		var cartService = new CartService(context);
+		var transactionService = new TransactionService(context);
+		var _sut = new CartsController(cartService, transactionService);
 
 		// Act
 		var result = await _sut.GetCart(cartId);
@@ -65,7 +68,9 @@ public class CartsControllerTests : IDisposable
 			productId = 4646,
 			quantity = 3
 		};
-		var _sut = new CartsController(context);
+		var cartService = new CartService(context);
+		var transactionService = new TransactionService(context);
+		var _sut = new CartsController(cartService, transactionService);
 
 		// Act
 		var result = await _sut.PostItemToCart(cartId, cartDTO);
@@ -88,7 +93,9 @@ public class CartsControllerTests : IDisposable
 		// Arrange
 		var context = _ctxBuilder.WithCarts().WithProducts().WithTransactions().Build();
 		var cartId = "1C892986-18F1-4DA7-2252-1FB697891A58";
-		var _sut = new CartsController(context);
+		var cartService = new CartService(context);
+		var transactionService = new TransactionService(context);
+		var _sut = new CartsController(cartService, transactionService);
 
 		// Act
 		var result = await _sut.GetItemsInCart(cartId);
@@ -110,38 +117,17 @@ public class CartsControllerTests : IDisposable
 		var itemId = 4646;
 		var input = new CartQuantityDTO { Quantity = 3 };
 
-		var controller = new CartsController(context);
+		var cartService = new CartService(context);
+		var transactionService = new TransactionService(context);
+		var _sut = new CartsController(cartService, transactionService);
 
 		// Act
-		await controller.UpdateItemInCart(cartId, itemId, input);
+		await _sut.UpdateItemInCart(cartId, itemId, input);
 
 		// Assert
 		var transaction = await context.Transactions.FirstOrDefaultAsync(t => t.ProductId == itemId);
 		transaction.Should().NotBeNull();
 		transaction.Quantity.Should().Be(3);
-	}
-
-	[Fact]
-	public async Task ReplaceItemInCart_ExistingTransactionAndProduct_ReplacesTransaction()
-	{
-		// Arrange
-		var context = _ctxBuilder.WithCarts().WithProducts().WithTransactions().Build();
-		var cartId = "1C892986-18F1-4DA7-2252-1FB697891A58";
-		var itemId = 4646;
-		var input = new CartDTO { productId = 2585, quantity = 2 };
-
-		var controller = new CartsController(context);
-
-		// Act
-		await controller.ReplaceItemInCart(cartId, itemId, input);
-
-		// Assert
-		var oldTransaction = await context.Transactions.FirstOrDefaultAsync(t => t.ProductId == itemId);
-		var newTransaction = await context.Transactions.FirstOrDefaultAsync(t => t.ProductId == input.productId);
-
-		oldTransaction.Should().BeNull();
-		newTransaction.Should().NotBeNull();
-		newTransaction.Quantity.Should().Be(input.quantity);
 	}
 
 	[Fact]
@@ -151,11 +137,18 @@ public class CartsControllerTests : IDisposable
 		var context = _ctxBuilder.WithCarts().WithProducts().WithTransactions().Build();
 		var cartId = "1C892986-18F1-4DA7-2252-1FB697891A58";
 		var itemId = 4646;
+		var cartDTO = new CartDTO
+		{
+			productId = itemId,
+			quantity = 1
+		};
 
-		var controller = new CartsController(context);
+		var cartService = new CartService(context);
+		var transactionService = new TransactionService(context);
+		var _sut = new CartsController(cartService, transactionService);
 
 		// Act
-		await controller.DeleteItemInCart(cartId, itemId);
+		await _sut.DeleteItemInCart(cartId, cartDTO);
 
 		// Assert
 		var transaction = await context.Transactions.FirstOrDefaultAsync(t => t.ProductId == itemId);

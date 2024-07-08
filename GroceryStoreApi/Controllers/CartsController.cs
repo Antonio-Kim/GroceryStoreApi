@@ -1,6 +1,7 @@
 using System.Net;
 using GroceryStoreApi.DTO.Cart;
 using GroceryStoreApi.Models;
+using GroceryStoreApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,37 +12,26 @@ namespace GroceryStoreApi.Controllers;
 [ResponseCache(NoStore = true)]
 public class CartsController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ICartService _cartService;
+    private readonly ITransactionService _transactionService;
 
-    public CartsController(ApplicationDbContext context)
+    public CartsController(CartService cartService, TransactionService transactionService)
     {
-        _context = context;
+        _cartService = cartService;
+        _transactionService = transactionService;
     }
 
     [HttpPost(Name = "Create Cart")]
     public async Task<IActionResult> Post()
     {
-        var newCart = new Cart
-        {
-            CartId = Guid.NewGuid()
-        };
-        try
-        {
-            _context.Carts.Add(newCart);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(Post), new { created = true, cartId = newCart.CartId }, new { create = true });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { error = $"Internal Error: {ex.Message}" });
-        }
+        var cart = await _cartService.NewCartAsync();
+        return CreatedAtAction(nameof(Post), new { created = true, cartId = cart });
     }
 
     [HttpGet("{cartId}", Name = "Get Cart")]
     public async Task<IActionResult> GetCart(string cartId)
     {
-        var id = Guid.ParseExact(cartId, "D");
-        var cart = await _context.Carts.FirstOrDefaultAsync(c => c.CartId == id);
+        var cart = await _cartService.GetCartAsync(cartId);
 
         if (cart == null)
         {
@@ -59,40 +49,7 @@ public class CartsController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        if (!Guid.TryParseExact(cartId, "D", out Guid CartId))
-        {
-            return BadRequest("Invalid cartId format.");
-        }
-
-        var cart = await _context.Carts.FirstOrDefaultAsync(c => c.CartId == CartId);
-        if (cart == null)
-        {
-            return NotFound($"No cart with {cartId} exists.");
-        }
-
-        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == input.productId);
-        if (product == null)
-        {
-            return NotFound($"No product with {input.productId} exists.");
-        }
-
-        if (input.quantity < 1)
-        {
-            return BadRequest("Quantity must be greater than one");
-        }
-
-        var newTransaction = new Transactions()
-        {
-            CartId = CartId,
-            ProductId = input.productId,
-            Quantity = input.quantity
-        };
-
-        // **** NB: need to add case when the item exists in the cart. Perhaps add Service layer?
-        // **** The code is getting way too big in the controller
-
-        _context.Transactions.Add(newTransaction);
-        await _context.SaveChangesAsync();
+        await _transactionService.AddItem(cartId, input.productId, input.quantity);
 
         return StatusCode((int)HttpStatusCode.Created);
     }
@@ -100,51 +57,24 @@ public class CartsController : ControllerBase
     [HttpGet("{cartId}/items", Name = "GetItemsInCart")]
     public async Task<IActionResult> GetItemsInCart(string cartId)
     {
-        if (!Guid.TryParseExact(cartId, "D", out Guid CartId))
-        {
-            return BadRequest("Invalid cartId format.");
-        }
-        var cart = await _context.Transactions.FirstOrDefaultAsync(t => t.CartId == CartId);
+        var cart = await _transactionService.GetCart(cartId);
         if (cart == null)
         {
             return NotFound($"Cart ID {cartId} has done no actions.");
         }
 
-        var productsInCart = await _context.Transactions
-            .Where(t => t.CartId == CartId)
-            .Select(t => new
-            {
-                t.Product.Id,
-                t.Product.Name,
-                t.Quantity
-            })
-            .ToListAsync();
-
-        return Ok(productsInCart);
+        return Ok(cart);
     }
 
     [HttpPatch("{cartId}/items/{itemId}")]
     public async Task<IActionResult> UpdateItemInCart(string cartId, int itemId, [FromBody] CartQuantityDTO input)
     {
-        if (!Guid.TryParseExact(cartId, "D", out Guid CartId))
-        {
-            return BadRequest("Invalid cartId format.");
-        }
-        var transaction = await _context.Transactions.FirstOrDefaultAsync(t => t.ProductId == itemId);
-        if (transaction == null)
-        {
-            return NotFound("The cart or the item coud not be found.");
-        }
+        var isUpdated = await _transactionService.UpdateCart(cartId, itemId, itemId, input.Quantity);
 
-        if (transaction.ProductId != itemId)
+        if (!isUpdated)
         {
-            return BadRequest("Transaction does not have item {itemId}");
+            return NotFound("Item was not found");
         }
-
-        transaction.Quantity = input.Quantity;
-        _context.Transactions.Update(transaction);
-
-        await _context.SaveChangesAsync();
 
         return NoContent();
     }
@@ -152,52 +82,24 @@ public class CartsController : ControllerBase
     [HttpPut("{cartId}/items/{itemId}")]
     public async Task<IActionResult> ReplaceItemInCart(string cartId, int itemId, [FromBody] CartDTO input)
     {
-        if (!Guid.TryParseExact(cartId, "D", out Guid CartId))
+        var isUpdated = await _transactionService.UpdateCart(cartId, itemId, input.productId, input.quantity);
+
+        if (!isUpdated)
         {
-            return BadRequest("Invalid cartId format.");
+            return NotFound("Item was not found");
         }
-
-        // Find existing transaction
-        var existingTransaction = await _context.Transactions.FirstOrDefaultAsync(t => t.ProductId == itemId && t.CartId == CartId);
-        if (existingTransaction == null)
-        {
-            return NotFound("The cart or the item could not be found.");
-        }
-
-        // Remove existing transaction
-        _context.Transactions.Remove(existingTransaction);
-        await _context.SaveChangesAsync();
-
-        // Add new transaction
-        var newTransaction = new Transactions
-        {
-            CartId = CartId,
-            ProductId = input.productId,
-            Quantity = input.quantity
-        };
-
-        _context.Transactions.Add(newTransaction);
-        await _context.SaveChangesAsync();
 
         return NoContent();
     }
 
-
-
     [HttpDelete("{cartId}/items/{itemId}")]
-    public async Task<IActionResult> DeleteItemInCart(string cartId, int itemId)
+    public async Task<IActionResult> DeleteItemInCart(string cartId, [FromBody] CartDTO input)
     {
-        if (!Guid.TryParseExact(cartId, "D", out Guid CartId))
+        var isDeleted = await _transactionService.RemoveItem(cartId, input.productId, input.quantity);
+        if (!isDeleted)
         {
-            return BadRequest("Invalid cartId format.");
+            return NotFound("Item was not found");
         }
-        var transaction = await _context.Transactions.FirstOrDefaultAsync(t => t.ProductId == itemId);
-        if (transaction == null)
-        {
-            return NotFound("The cart or the item coud not be found.");
-        }
-        _context.Transactions.Remove(transaction);
-        await _context.SaveChangesAsync();
 
         return NoContent();
     }
