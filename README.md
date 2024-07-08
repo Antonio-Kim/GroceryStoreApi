@@ -24,3 +24,4 @@ Requirement API Endpoints have minor errors:
 #### References
 
 - Data Seeding: https://learn.microsoft.com/en-us/ef/core/modeling/data-seeding
+- Controller Unit Testing: https://learn.microsoft.com/en-us/ef/ef6/fundamentals/testing/mocking

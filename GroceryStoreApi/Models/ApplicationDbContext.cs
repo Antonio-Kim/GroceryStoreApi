@@ -208,7 +208,7 @@ public class ApplicationDbContext : DbContext
 			.OnDelete(DeleteBehavior.Restrict);
 	}
 
-	public DbSet<Product> Products => Set<Product>();
-	public DbSet<Cart> Carts => Set<Cart>();
-	public DbSet<Transactions> Transactions => Set<Transactions>();
+	public virtual DbSet<Product> Products => Set<Product>();
+	public virtual DbSet<Cart> Carts => Set<Cart>();
+	public virtual DbSet<Transactions> Transactions => Set<Transactions>();
 }

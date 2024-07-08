@@ -1,3 +1,4 @@
+using System.Net;
 using GroceryStoreApi.DTO.Cart;
 using GroceryStoreApi.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +29,7 @@ public class CartsController : ControllerBase
         {
             _context.Carts.Add(newCart);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(Post), new { created = true, cartId = newCart.CartId });
+            return CreatedAtAction(nameof(Post), new { created = true, cartId = newCart.CartId }, new { create = true });
         }
         catch (Exception ex)
         {
@@ -93,7 +94,7 @@ public class CartsController : ControllerBase
         _context.Transactions.Add(newTransaction);
         await _context.SaveChangesAsync();
 
-        return Created();
+        return StatusCode((int)HttpStatusCode.Created);
     }
 
     [HttpGet("{cartId}/items", Name = "GetItemsInCart")]
@@ -155,18 +156,19 @@ public class CartsController : ControllerBase
         {
             return BadRequest("Invalid cartId format.");
         }
-        var transaction = await _context.Transactions.FirstOrDefaultAsync(t => t.ProductId == itemId);
-        if (transaction == null)
+
+        // Find existing transaction
+        var existingTransaction = await _context.Transactions.FirstOrDefaultAsync(t => t.ProductId == itemId && t.CartId == CartId);
+        if (existingTransaction == null)
         {
-            return NotFound("The cart or the item coud not be found.");
-        }
-        var checkProduct = await _context.Products.AnyAsync(p => p.Id == itemId);
-        if (!checkProduct)
-        {
-            return NotFound("Item does not exist in database.");
+            return NotFound("The cart or the item could not be found.");
         }
 
-        _context.Transactions.Remove(transaction);
+        // Remove existing transaction
+        _context.Transactions.Remove(existingTransaction);
+        await _context.SaveChangesAsync();
+
+        // Add new transaction
         var newTransaction = new Transactions
         {
             CartId = CartId,
@@ -179,6 +181,8 @@ public class CartsController : ControllerBase
 
         return NoContent();
     }
+
+
 
     [HttpDelete("{cartId}/items/{itemId}")]
     public async Task<IActionResult> DeleteItemInCart(string cartId, int itemId)
