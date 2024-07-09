@@ -116,14 +116,14 @@ public class OrdersControllerTests : IDisposable
 		var cartService = new CartService(context);
 		var orderService = new OrderService(context, cartService);
 		var _sut = new OrdersController(cartService, orderService);
-		var cartId = "1C892986-18F1-4DA7-2252-1FB697891A58";
 		var input = new OrderDTO
 		{
+			CartId = "1C892986-18F1-4DA7-2252-1FB697891A58",
 			CustomerName = "Jack Black"
 		};
 
 		// Act
-		var result = await _sut.PostOrder(cartId, input);
+		var result = await _sut.PostOrder(input);
 
 		// Assert
 		var postResult = result as StatusCodeResult;
@@ -132,10 +132,10 @@ public class OrdersControllerTests : IDisposable
 		var orders = await orderService.GetAllOrders();
 		orders.Should().NotBeNull();
 		orders.Should().HaveCount(1);
-		orders[0].CartId.Should().Be(cartId);
+		orders[0].CartId.Should().Be(input.CartId);
 		orders[0].CustomerName.Should().Be(input.CustomerName);
 		orders[0].Comment.Should().NotBeNull();
-		var cart = await cartService.GetCartAsync(cartId);
+		var cart = await cartService.GetCartAsync(input.CartId);
 		cart.Should().BeNull();
 	}
 
@@ -147,14 +147,14 @@ public class OrdersControllerTests : IDisposable
 		var cartService = new CartService(context);
 		var orderService = new OrderService(context, cartService);
 		var _sut = new OrdersController(cartService, orderService);
-		var cartId = "1C892986-18F1-4DA7-2252-1FB697891A59";
 		var input = new OrderDTO
 		{
+			CartId = "1C892986-18F1-4DA7-2252-1FB697891A59",
 			CustomerName = "Jack Black"
 		};
 
 		// Act
-		var result = await _sut.PostOrder(cartId, input);
+		var result = await _sut.PostOrder(input);
 
 		// Assert
 		var postResult = result as BadRequestObjectResult;

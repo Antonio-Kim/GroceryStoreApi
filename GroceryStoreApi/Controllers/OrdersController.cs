@@ -1,17 +1,21 @@
+using System.Security.Claims;
 using GroceryStoreApi.DTO.Order;
 using GroceryStoreApi.Models;
 using GroceryStoreApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GroceryStoreApi.Controllers;
 
 [ApiController]
-[ResponseCache(Location = ResponseCacheLocation.Any, Duration = 60)]
+[Route("[controller]")]
+[ResponseCache(NoStore = true)]
+[Authorize]
 public class OrdersController : ControllerBase
 {
 	private readonly ICartService _cartService;
 	private readonly IOrderService _orderService;
-	public OrdersController(CartService cartService, OrderService orderService)
+	public OrdersController(ICartService cartService, IOrderService orderService)
 	{
 		_cartService = cartService;
 		_orderService = orderService;
@@ -32,6 +36,7 @@ public class OrdersController : ControllerBase
 		}
 	}
 
+
 	[HttpGet("{orderId}", Name = "Get a single order")]
 	public async Task<IActionResult> GetOrder(string orderId)
 	{
@@ -49,11 +54,11 @@ public class OrdersController : ControllerBase
 	}
 
 	[HttpPost(Name = "Create a new order")]
-	public async Task<IActionResult> PostOrder(string cartId, [FromBody] OrderDTO input)
+	public async Task<IActionResult> PostOrder([FromBody] OrderDTO input)
 	{
 		try
 		{
-			var order = await _orderService.CreateOrder(cartId, input.CustomerName, input.Comment);
+			var order = await _orderService.CreateOrder(input.CartId, input.CustomerName, input.Comment);
 			if (!order) return BadRequest("Not valid ");
 
 			return StatusCode(201);

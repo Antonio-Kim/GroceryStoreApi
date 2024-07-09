@@ -10,7 +10,7 @@ public class OrderService : IOrderService
 	private readonly ApplicationDbContext _context;
 	private readonly ICartService _cartService;
 
-	public OrderService(ApplicationDbContext context, CartService cartService)
+	public OrderService(ApplicationDbContext context, ICartService cartService)
 	{
 		_context = context;
 		_cartService = cartService;
