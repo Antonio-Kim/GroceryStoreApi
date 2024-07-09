@@ -2,6 +2,7 @@ using FluentAssertions;
 using GroceryStoreApi.Models;
 using GroceryStoreApi.Services;
 using GroceryStoreTests.Fakes;
+using Microsoft.EntityFrameworkCore;
 
 namespace GroceryStoreTests.Services;
 
@@ -146,5 +147,87 @@ public class OrderServiceTests : IDisposable
 
 		// Assert
 		result.Should().BeFalse();
+	}
+
+	[Fact]
+	public async Task DeleteOrder_ValidOrderId_ReturnsTrue()
+	{
+		// Arrange
+		var context = _ctxBuilder
+			.WithCarts()
+			.WithProducts()
+			.WithTransactions()
+			.WithOrders()
+			.Build();
+		var cartService = new CartService(context);
+		var _sut = new OrderService(context, cartService);
+		var orderId = "2F683325-73DF-882A-351E-2E924AE8EC3C";
+
+		// Act
+		var result = await _sut.DeleteOrder(orderId);
+
+		// Assert
+		result.Should().BeTrue();
+		var orders = await _sut.GetAllOrders();
+		orders.Should().NotBeNull();
+		orders.Should().HaveCount(1);
+	}
+
+	[Fact]
+	public async Task DeleteOrder_InvalidOrderId_ReturnsFalse()
+	{
+		// Arrange
+		var context = _ctxBuilder
+			.WithCarts()
+			.WithProducts()
+			.WithTransactions()
+			.WithOrders()
+			.Build();
+		var cartService = new CartService(context);
+		var _sut = new OrderService(context, cartService);
+		var orderId = "2F683325-73DF-882A-351E-2E924AE8EC3D";
+
+		// Act
+		var result = await _sut.DeleteOrder(orderId);
+
+		// Assert
+		result.Should().BeFalse();
+		var orders = await _sut.GetAllOrders();
+		orders.Should().NotBeNull();
+		orders.Should().HaveCount(2);
+	}
+
+	[Fact]
+	public async Task UpdateOrder_ValidOrderId_ReturnsTrue()
+	{
+		// Arrange
+		var context = _ctxBuilder
+			.WithCarts()
+			.WithProducts()
+			.WithTransactions()
+			.WithOrders()
+			.Build();
+		var cartService = new CartService(context);
+		var _sut = new OrderService(context, cartService);
+		var orderInIssue = new Order
+		{
+			OrderId = Guid.Parse("2F683325-73DF-882A-351E-2E924AE8EC3C"),
+			CartId = Guid.Parse("1C892986-18F1-4DA7-2252-1FB697891A58"),
+			CustomerName = "John Doe",
+			Comment = "Next-day deliver"
+		};
+
+		// Act
+		var result = await _sut.UpdateOrder(
+			orderInIssue.OrderId.ToString(),
+			orderInIssue.CustomerName,
+			orderInIssue.Comment
+		);
+
+		// Assert
+		result.Should().BeTrue();
+		var order = await context.Orders.FirstOrDefaultAsync(o => o.OrderId == orderInIssue.OrderId);
+		order.Should().NotBeNull();
+		order.Should().BeEquivalentTo(orderInIssue);
 	}
 }

@@ -47,9 +47,25 @@ public class OrderService : IOrderService
 		}
 	}
 
-	public Task<bool> DeleteOrder(string orderId)
+	public async Task<bool> DeleteOrder(string orderId)
 	{
-		throw new NotImplementedException();
+		if (!Guid.TryParseExact(orderId, "D", out Guid OrderId)) return false;
+
+		try
+		{
+			var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == OrderId);
+			if (order == null)
+			{
+				return false;
+			}
+			_context.Orders.Remove(order);
+			await _context.SaveChangesAsync();
+			return true;
+		}
+		catch (DbException ex)
+		{
+			throw new Exception($"Error when deleting order on database: {ex.Message}");
+		}
 	}
 
 	public async Task<List<Order>> GetAllOrders()
@@ -67,8 +83,32 @@ public class OrderService : IOrderService
 		return null;
 	}
 
-	public Task<bool> UpdateOrder(string orderId, string? customerName, string? comment)
+	public async Task<bool> UpdateOrder(string orderId, string? customerName, string? comment)
 	{
-		throw new NotImplementedException();
+		if (!Guid.TryParseExact(orderId, "D", out Guid OrderId))
+		{
+			return false;
+		}
+
+		try
+		{
+			var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == OrderId);
+			if (order == null) return false;
+			var updatedOrder = new Order
+			{
+				OrderId = OrderId,
+				CartId = order.CartId,
+				CustomerName = customerName,
+				Comment = comment
+			};
+			_context.Orders.Remove(order);
+			_context.Orders.Add(updatedOrder);
+			await _context.SaveChangesAsync();
+			return true;
+		}
+		catch (DbException ex)
+		{
+			throw new Exception($"Error occurred when updating order: {ex.Message}");
+		}
 	}
 }
