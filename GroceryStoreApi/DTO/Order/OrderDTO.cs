@@ -4,6 +4,7 @@ namespace GroceryStoreApi.DTO.Order;
 
 public class OrderDTO
 {
-	public string? CustomerName { get; set; }
+	[Required]
+	public string CustomerName { get; set; } = default!;
 	public string? Comment { get; set; }
 }

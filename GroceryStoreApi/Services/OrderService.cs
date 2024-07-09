@@ -31,7 +31,7 @@ public class OrderService : IOrderService
 			OrderId = Guid.NewGuid(),
 			CartId = CartId,
 			CustomerName = customerName,
-			Comment = comment
+			Comment = comment ?? string.Empty
 		};
 
 		try
