@@ -205,10 +205,11 @@ public class ApplicationDbContext : DbContext
 			.WithMany(c => c.Transactions)
 			.HasForeignKey(t => t.CartId)
 			.IsRequired()
-			.OnDelete(DeleteBehavior.Restrict);
+			.OnDelete(DeleteBehavior.Cascade);
 	}
 
 	public virtual DbSet<Product> Products => Set<Product>();
 	public virtual DbSet<Cart> Carts => Set<Cart>();
 	public virtual DbSet<Transactions> Transactions => Set<Transactions>();
+	public virtual DbSet<Order> Orders => Set<Order>();
 }

@@ -2,13 +2,10 @@ using System.Net;
 using FluentAssertions;
 using GroceryStoreApi.Controllers;
 using GroceryStoreApi.DTO.Cart;
-using GroceryStoreApi.Models;
 using GroceryStoreApi.Services;
 using GroceryStoreTests.Fakes;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace GroceryStoreTests.Controllers;
 
@@ -127,7 +124,7 @@ public class CartsControllerTests : IDisposable
 		// Assert
 		var transaction = await context.Transactions.FirstOrDefaultAsync(t => t.ProductId == itemId);
 		transaction.Should().NotBeNull();
-		transaction.Quantity.Should().Be(3);
+		transaction?.Quantity.Should().Be(3);
 	}
 
 	[Fact]
