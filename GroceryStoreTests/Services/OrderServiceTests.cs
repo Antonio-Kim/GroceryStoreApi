@@ -99,4 +99,52 @@ public class OrderServiceTests : IDisposable
 		// Assert
 		result.Should().BeNull();
 	}
+
+	[Fact]
+	public async Task AddOrder_ValidInput_ReturnsTrue()
+	{
+		// Arrange
+		var context = _ctxBuilder
+			.WithCarts()
+			.WithProducts()
+			.WithTransactions()
+			.WithOrders()
+			.Build();
+		var cartService = new CartService(context);
+		var _sut = new OrderService(context, cartService);
+		var cartId = "1C892986-18F1-82AD-2252-1FB6978922FA";
+		var customerName = "Jane Smith";
+		var comment = "";
+
+		// Act
+		var result = await _sut.CreateOrder(cartId, customerName, comment);
+
+		// Assert
+		result.Should().BeTrue();
+		var cart = await cartService.GetCartAsync(cartId);
+		cart.Should().BeNull();
+	}
+
+	[Fact]
+	public async Task AddOrder_InvalidCartId_ReturnsTrue()
+	{
+		// Arrange
+		var context = _ctxBuilder
+			.WithCarts()
+			.WithProducts()
+			.WithTransactions()
+			.WithOrders()
+			.Build();
+		var cartService = new CartService(context);
+		var _sut = new OrderService(context, cartService);
+		var cartId = "1C892986-18F1-82AD-2252-1FB6978922FB";
+		var customerName = "Jane Smith";
+		var comment = "";
+
+		// Act
+		var result = await _sut.CreateOrder(cartId, customerName, comment);
+
+		// Assert
+		result.Should().BeFalse();
+	}
 }

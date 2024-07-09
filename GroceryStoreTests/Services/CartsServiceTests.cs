@@ -45,6 +45,23 @@ public class CartServicesTests : IDisposable
 		actual.Should().BeNull();
 	}
 
+	[Fact]
+	public async Task DeleteCartAsync_ExistingCart_DeletesCart()
+	{
+		// Arrange
+		var context = _ctxBuilder.WithOneCart().Build();
+		var cartId = "1C892986-18F1-4DA7-2252-1FB697891A58";
+		var cartService = new CartService(context);
+
+		// Act
+		var result = await cartService.DeleteCartAsync(cartId);
+
+		// Assert
+		result.Should().BeTrue();
+		var cart = await cartService.GetCartAsync(cartId);
+		cart.Should().BeNull();
+	}
+
 	public void Dispose()
 	{
 		_ctxBuilder.Dispose();

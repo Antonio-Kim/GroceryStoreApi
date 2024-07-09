@@ -1,3 +1,4 @@
+using System.Data.Common;
 using GroceryStoreApi.Models;
 using GroceryStoreApi.Services;
 using Microsoft.EntityFrameworkCore;
@@ -15,9 +16,35 @@ public class OrderService : IOrderService
 		_cartService = cartService;
 	}
 
-	public Task<bool> CreateOrder(string orderId, string customerName, string? comment)
+	public async Task<bool> CreateOrder(string cartId, string customerName, string? comment = "")
 	{
-		throw new NotImplementedException();
+		if (!Guid.TryParseExact(cartId, "D", out Guid CartId))
+		{
+			return false;
+		}
+
+		var cart = await _cartService.GetCartAsync(cartId);
+		if (cart == null) return false;
+
+		var order = new Order
+		{
+			OrderId = Guid.NewGuid(),
+			CartId = CartId,
+			CustomerName = customerName,
+			Comment = comment
+		};
+
+		try
+		{
+			await _context.Orders.AddAsync(order);
+			await _cartService.DeleteCartAsync(cartId);
+			await _context.SaveChangesAsync();
+			return true;
+		}
+		catch (DbException ex)
+		{
+			throw new Exception($"Error occurred when adding order: {ex.Message}");
+		}
 	}
 
 	public Task<bool> DeleteOrder(string orderId)
