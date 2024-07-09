@@ -63,4 +63,40 @@ public class OrdersController : ControllerBase
 			throw new Exception($"Exception occurred when creating order: ${ex.Message}");
 		}
 	}
+
+	[HttpPatch("{orderId}", Name = "Update an order")]
+	public async Task<IActionResult> UpdateOrder(string orderId, [FromBody] OrderDTO input)
+	{
+		try
+		{
+			var order = await _orderService.GetOrder(orderId);
+			if (order == null)
+				return NotFound("There is no order with specified id associated with the API client");
+			var newOrder = await _orderService.UpdateOrder(orderId, input.CustomerName, input.Comment);
+			if (!newOrder)
+				return BadRequest("Parameters provided are invalid");
+
+			return NoContent();
+		}
+		catch (Exception ex)
+		{
+			throw new Exception($"Exception occurred when updating order: ${ex.Message}");
+		}
+	}
+
+	[HttpDelete("{orderId}", Name = "Delete an order")]
+	public async Task<IActionResult> DeleteOrder(string orderId)
+	{
+		try
+		{
+			var order = await _orderService.DeleteOrder(orderId);
+			if (!order) return NotFound("There is no order with the specified id associated with the API client");
+
+			return NoContent();
+		}
+		catch (Exception ex)
+		{
+			throw new Exception($"Exception occurred when deleting order: ${ex.Message}");
+		}
+	}
 }
