@@ -15,7 +15,7 @@ public class CartsController : ControllerBase
     private readonly ICartService _cartService;
     private readonly ITransactionService _transactionService;
 
-    public CartsController(CartService cartService, TransactionService transactionService)
+    public CartsController(ICartService cartService, ITransactionService transactionService)
     {
         _cartService = cartService;
         _transactionService = transactionService;

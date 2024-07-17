@@ -22,6 +22,9 @@ public class ApplicationDbContextFakeBuilder : IDisposable
 	private EntityEntry<Transactions>? _transactionFour;
 	private EntityEntry<Transactions>? _transactionFive;
 
+	private EntityEntry<Order>? _orderOne;
+	private EntityEntry<Order>? _orderTwo;
+
 
 	public ApplicationDbContextFake Build()
 	{
@@ -181,6 +184,30 @@ public class ApplicationDbContextFakeBuilder : IDisposable
 				CartId = Guid.Parse("2E892988-18F1-4DA7-2252-1FB697891A58"),
 				ProductId = 1709,
 				Quantity = 3,
+			}
+		);
+
+		return this;
+	}
+
+	public ApplicationDbContextFakeBuilder WithOrders()
+	{
+		_orderOne = _context.Orders.Add(
+			new Order
+			{
+				OrderId = Guid.Parse("2F683325-73DF-882A-351E-2E924AE8EC3C"),
+				CartId = Guid.Parse("1C892986-18F1-4DA7-2252-1FB697891A58"),
+				CustomerName = "John Doe",
+				Comment = ""
+			}
+		);
+		_orderTwo = _context.Orders.Add(
+			new Order
+			{
+				OrderId = Guid.Parse("5A683325-73DF-882A-351E-2E924AE8EC3F"),
+				CartId = Guid.Parse("2E892988-18F1-4DA7-2252-1FB697891A58"),
+				CustomerName = "Jane Doe",
+				Comment = "Express Delivery"
 			}
 		);
 

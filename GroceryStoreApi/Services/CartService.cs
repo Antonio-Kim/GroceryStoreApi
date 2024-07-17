@@ -40,4 +40,28 @@ public class CartService : ICartService
 			throw new Exception($"Error occured when saving to database: {ex.Message}");
 		}
 	}
+
+	public async Task<bool> DeleteCartAsync(string cartId)
+	{
+		if (!Guid.TryParseExact(cartId, "D", out Guid CartId))
+		{
+			return false;
+		}
+
+		try
+		{
+			var cart = await GetCartAsync(cartId);
+			if (cart == null)
+			{
+				return false;
+			}
+			_context.Carts.Remove(cart);
+			await _context.SaveChangesAsync();
+			return true;
+		}
+		catch (DbException ex)
+		{
+			throw new Exception($"Error occurred when deleting cart from database: {ex.Message}");
+		}
+	}
 }
