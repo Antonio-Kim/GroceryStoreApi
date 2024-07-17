@@ -1,6 +1,6 @@
-# GroceryApiTesting
+# GroceryStore API
 
-![Main](https://github.com/Antonio-Kim/GroceryStoreApi/actions/workflows/dotnet.yml/badge.svg)
+![Main](https://github.com/Antonio-Kim/GroceryStoreApi/actions/workflows/dotnet.yml/badge.svg?branch=main)
 ![.NET Version](https://img.shields.io/badge/.NET-8.0.x-blue)
 
 **Requirement Documentation**: https://github.com/vdespa/Postman-Complete-Guide-API-Testing/blob/main/simple-grocery-store-api.md
