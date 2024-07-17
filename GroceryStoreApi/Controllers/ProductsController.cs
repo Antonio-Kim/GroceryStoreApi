@@ -19,16 +19,26 @@ public class ProductsController : ControllerBase
 	}
 
 	[HttpGet(Name = "Get All Products")]
-	public async Task<IActionResult> GetProducts(string? category = null)
+	public async Task<IActionResult> GetProducts(
+		string? category = null,
+		int results = 20,
+		bool? available = null)
 	{
-		var query = _context.Products.AsQueryable();
+		var query = _context.Products
+			.AsQueryable();
 
 		if (!string.IsNullOrEmpty(category))
 		{
 			query = query.Where(p => p.Category == category);
 		}
-		var products = await query.
-						Select(p => new
+
+		if (available.HasValue)
+		{
+			query = query.Where(p => p.CurrentStock > 0 == available.Value);
+		}
+		var products = await query
+						.Take(results)
+						.Select(p => new
 						{
 							p.Id,
 							p.Category,
