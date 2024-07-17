@@ -25,16 +25,30 @@ builder.Services.AddCors(options =>
             cfg.AllowAnyMethod();
         });
 });
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+var dbProvider = builder.Configuration.GetValue<string>("DatabaseProvider");
+
+if (dbProvider == "PostgreSQL")
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+}
+else if (dbProvider == "Sqlite")
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+}
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
 }
 
 app.UseHttpsRedirection();

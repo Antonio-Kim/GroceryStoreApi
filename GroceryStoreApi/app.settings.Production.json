@@ -6,7 +6,7 @@
     }
   },
   "ConnectionStrings": {
-    "DefaultConnection": "Data source=GroceryStore.db"
+    "DefaultConnection": "Host=db;Database=grocery_store_db;Username=grocery_user;Password=grocery_password"
   },
-  "DatabaseProvider": "Sqlite"
+  "DatabaseProvider": "PostgreSQL"
 }
