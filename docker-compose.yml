@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: grocery_store_db
+      POSTGRES_USER: grocery_user
+      POSTGRES_PASSWORD: grocery_password
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: GroceryStoreApi/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Host=db;Database=grocery_store_db;Username=grocery_user;Password=grocery_password
+    ports:
+      - '8080:80'
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
