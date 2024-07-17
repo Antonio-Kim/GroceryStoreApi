@@ -3,7 +3,7 @@ name: GroceryStoreApi
 on:
   push:
     branches:
-      - DevOps
+      - Main
 
 jobs:
   build:
