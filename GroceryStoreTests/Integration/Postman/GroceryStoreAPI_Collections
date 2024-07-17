@@ -1,0 +1,217 @@
+{
+	"info": {
+		"_postman_id": "1daad7d1-673e-4d7c-8af8-9cfbcfec88d1",
+		"name": "GroceryStoreAPI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16805945"
+	},
+	"item": [
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Get All Products",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.clear();\r",
+									"\r",
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test('At least one available product exists', () => {\r",
+									"    const response = pm.response.json();\r",
+									"\r",
+									"    pm.expect(response).to.be.an('array');\r",
+									"    pm.expect(response.length).to.be.above(0);\r",
+									"\r",
+									"    const product = response[0];\r",
+									"    pm.expect(product).to.be.an('object');\r",
+									"    pm.expect(product).to.haveOwnProperty('id');\r",
+									"    pm.expect(product.id).to.be.a('number');\r",
+									"    pm.expect(product).to.haveOwnProperty('inStock');\r",
+									"    pm.expect(product.inStock).to.be.true;\r",
+									"\r",
+									"    pm.environment.set('productId', product.id);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "test",
+									"disabled": true
+								},
+								{
+									"key": "results",
+									"value": "2",
+									"disabled": true
+								},
+								{
+									"key": "available",
+									"value": "false",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get single Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.clear();\r",
+									"const response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Return Product has all the properties\", () => {\r",
+									"    pm.expect(response).to.be.an(\"object\").that.includes.all.keys([\r",
+									"        \"id\", \"category\", \"name\", \"manufacturer\", \"price\", \"currentStock\", \"inStock\"\r",
+									"    ]);\r",
+									"    const productId = response.id;\r",
+									"    pm.collectionVariables.set(\"productId\", productId);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Returned properties are in correct format\", () => {\r",
+									"    pm.expect(response.id).to.be.a(\"number\");\r",
+									"    pm.expect(response.category).to.be.a(\"string\");\r",
+									"    pm.expect(response.name).to.be.a(\"string\");\r",
+									"    pm.expect(response.manufacturer).to.be.a(\"string\");\r",
+									"    pm.expect(response.price).to.be.a(\"number\");\r",
+									"    pm.expect(response.currentStock).to.be.a(\"number\");\r",
+									"    pm.expect(response.inStock).to.be.a(\"boolean\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products/:productId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "1225"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Status",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status should be 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/status",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"status"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"\r",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000/",
+			"type": "string"
+		},
+		{
+			"key": "productId",
+			"value": ""
+		}
+	]
+}
