@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using GroceryStoreApi.DTO;
 using GroceryStoreApi.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -20,10 +21,26 @@ public class ProductsController : ControllerBase
 
 	[HttpGet(Name = "Get All Products")]
 	public async Task<IActionResult> GetProducts(
+		[RegularExpression("coffee|fresh-produce|meat-seafood|dairy|candy|bread-bakery",
+		ErrorMessage = "Invalid value for query parameter 'category'. Must be one of: meat-seafood, fresh-produce, candy, bread-bakery, dairy, eggs, coffee")]
 		string? category = null,
-		int results = 20,
+		[Range(1, 20)] int results = 20,
 		bool? available = null)
 	{
+		if (!ModelState.IsValid)
+		{
+			var errors = ModelState.Values
+				.SelectMany(v => v.Errors)
+				.Select(e => e.ErrorMessage)
+				.ToList();
+
+			var errorResponse = new
+			{
+				error = errors.FirstOrDefault()
+			};
+
+			return BadRequest(errorResponse);
+		}
 		var query = _context.Products
 			.AsQueryable();
 
