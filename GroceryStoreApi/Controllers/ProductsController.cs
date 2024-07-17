@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using GroceryStoreApi.DTO;
 using GroceryStoreApi.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -18,51 +19,56 @@ public class ProductsController : ControllerBase
 		_context = context;
 	}
 
-	[HttpGet(Name = "GetProducts")]
-	public async Task<RestDTO<ProductsDTO[]>> GetAllProducts([FromQuery] ProductRequestDTO input)
+	[HttpGet(Name = "Get All Products")]
+	public async Task<IActionResult> GetProducts(
+		[RegularExpression("coffee|fresh-produce|meat-seafood|dairy|candy|bread-bakery",
+		ErrorMessage = "Invalid value for query parameter 'category'. Must be one of: meat-seafood, fresh-produce, candy, bread-bakery, dairy, eggs, coffee")]
+		string? category = null,
+		[Range(1, 20)] int results = 20,
+		bool? available = null)
 	{
-		var query = _context.Products.AsQueryable();
-
-		if (!string.IsNullOrEmpty(input.Category))
-			query = query.Where(p => p.Category != null && p.Category.Contains(input.Category));
-
-		if (!string.IsNullOrEmpty(input.Category))
+		if (!ModelState.IsValid)
 		{
-			bool inStock = bool.Parse(input.Category);
-			query = query.Where(p => p.CurrentStock > 0 == inStock);
+			var errors = ModelState.Values
+				.SelectMany(v => v.Errors)
+				.Select(e => e.ErrorMessage)
+				.ToList();
+
+			var errorResponse = new
+			{
+				error = errors.FirstOrDefault()
+			};
+
+			return BadRequest(errorResponse);
+		}
+		var query = _context.Products
+			.AsQueryable();
+
+		if (!string.IsNullOrEmpty(category))
+		{
+			query = query.Where(p => p.Category == category);
 		}
 
-
-		var products = query
-			.Select(p => new ProductsDTO
-			{
-				Id = p.Id,
-				Category = p.Category,
-				Name = p.Name,
-				InStock = p.CurrentStock != 0
-			}).Take(input.Results);
-
-		return new RestDTO<ProductsDTO[]>
+		if (available.HasValue)
 		{
-			Data = await products.ToArrayAsync(),
-			Results = input.Results,
-			Category = input.Category,
-			Available = input.Available,
-			Links = new List<LinkDTO>
-			{
-				new LinkDTO
-				(
-					Url.Action(null, "products", null, Request.Scheme)!,
-					"self",
-					"GET"
-				)
-			}
-		};
+			query = query.Where(p => p.CurrentStock > 0 == available.Value);
+		}
+		var products = await query
+						.Take(results)
+						.Select(p => new
+						{
+							p.Id,
+							p.Category,
+							p.Name,
+							InStock = p.CurrentStock > 0
+						})
+						.ToListAsync();
+
+		return Ok(products);
 	}
 
 	[HttpGet("{id}", Name = "GetProductById")]
-	[Route("/{id}")]
-	public async Task<ActionResult<object>> GetProductById(int id)
+	public async Task<IActionResult> GetProductById(int id)
 	{
 		var product = await _context.Products.Where(p => p.Id == id).FirstOrDefaultAsync();
 
@@ -71,19 +77,17 @@ public class ProductsController : ControllerBase
 			return NotFound(new { error = $"No product with id {id}." });
 		}
 
-		var links = new List<LinkDTO>()
+		var response = new
 		{
-			new LinkDTO(
-				Url.Action("GetProductById", "products", null, Request.Scheme)!,
-				"self",
-				"GET"
-			),
+			product.Id,
+			product.Name,
+			product.Category,
+			product.Manufacturer,
+			product.Price,
+			product.CurrentStock,
+			InStock = product.CurrentStock > 0
 		};
 
-		return new
-		{
-			Data = product,
-			Links = links
-		};
+		return Ok(response);
 	}
 }
