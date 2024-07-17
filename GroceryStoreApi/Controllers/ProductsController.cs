@@ -18,46 +18,26 @@ public class ProductsController : ControllerBase
 		_context = context;
 	}
 
-	[HttpGet(Name = "GetProducts")]
-	public async Task<RestDTO<ProductsDTO[]>> GetAllProducts([FromQuery] ProductRequestDTO input)
+	[HttpGet(Name = "Get All Products")]
+	public async Task<IActionResult> GetProducts(string? category = null)
 	{
 		var query = _context.Products.AsQueryable();
 
-		if (!string.IsNullOrEmpty(input.Category))
-			query = query.Where(p => p.Category != null && p.Category.Contains(input.Category));
-
-		if (!string.IsNullOrEmpty(input.Category))
+		if (!string.IsNullOrEmpty(category))
 		{
-			bool inStock = bool.Parse(input.Category);
-			query = query.Where(p => p.CurrentStock > 0 == inStock);
+			query = query.Where(p => p.Category == category);
 		}
+		var products = await query.
+						Select(p => new
+						{
+							p.Id,
+							p.Category,
+							p.Name,
+							InStock = p.CurrentStock > 0
+						})
+						.ToListAsync();
 
-
-		var products = query
-			.Select(p => new ProductsDTO
-			{
-				Id = p.Id,
-				Category = p.Category,
-				Name = p.Name,
-				InStock = p.CurrentStock != 0
-			}).Take(input.Results);
-
-		return new RestDTO<ProductsDTO[]>
-		{
-			Data = await products.ToArrayAsync(),
-			Results = input.Results,
-			Category = input.Category,
-			Available = input.Available,
-			Links = new List<LinkDTO>
-			{
-				new LinkDTO
-				(
-					Url.Action(null, "products", null, Request.Scheme)!,
-					"self",
-					"GET"
-				)
-			}
-		};
+		return Ok(products);
 	}
 
 	[HttpGet("{id}", Name = "GetProductById")]
