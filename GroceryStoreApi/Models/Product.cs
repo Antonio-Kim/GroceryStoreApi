@@ -24,6 +24,6 @@ public class Product
 	[Precision(6, 2)]
 	public decimal Price { get; set; }
 	[Required]
-	[JsonPropertyName("current_stock")]
+	[JsonPropertyName("current-stock")]
 	public int CurrentStock { get; set; }
 }

@@ -68,8 +68,7 @@ public class ProductsController : ControllerBase
 	}
 
 	[HttpGet("{id}", Name = "GetProductById")]
-	[Route("/{id}")]
-	public async Task<ActionResult<object>> GetProductById(int id)
+	public async Task<IActionResult> GetProductById(int id)
 	{
 		var product = await _context.Products.Where(p => p.Id == id).FirstOrDefaultAsync();
 
@@ -78,19 +77,17 @@ public class ProductsController : ControllerBase
 			return NotFound(new { error = $"No product with id {id}." });
 		}
 
-		var links = new List<LinkDTO>()
+		var response = new
 		{
-			new LinkDTO(
-				Url.Action("GetProductById", "products", null, Request.Scheme)!,
-				"self",
-				"GET"
-			),
+			product.Id,
+			product.Name,
+			product.Category,
+			product.Manufacturer,
+			product.Price,
+			product.CurrentStock,
+			InStock = product.CurrentStock > 0
 		};
 
-		return new
-		{
-			Data = product,
-			Links = links
-		};
+		return Ok(response);
 	}
 }
