@@ -26,4 +26,6 @@ public class Product
 	[Required]
 	[JsonPropertyName("current-stock")]
 	public int CurrentStock { get; set; }
+
+	public ICollection<Transactions>? Transactions { get; set; }
 }
