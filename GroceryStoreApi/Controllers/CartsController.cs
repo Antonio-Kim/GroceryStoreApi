@@ -38,7 +38,13 @@ public class CartsController : ControllerBase
             return NotFound($"No cart with {cartId} exists.");
         }
 
-        return Ok();
+        var cartInfo = new
+        {
+            cartId = cart.CartId,
+            created = cart.Created,
+            items = cart.Transactions ?? []
+        };
+        return Ok(cartInfo);
     }
 
     [HttpPost("{cartId}/items", Name = "Add Item to cart")]

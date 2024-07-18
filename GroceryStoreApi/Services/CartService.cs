@@ -28,7 +28,12 @@ public class CartService : ICartService
 	public async Task<string> NewCartAsync()
 	{
 		Guid newCartId = Guid.NewGuid();
-		var newCart = new Cart { CartId = newCartId };
+		DateTime created = DateTime.Now;
+		var newCart = new Cart
+		{
+			CartId = newCartId,
+			Created = created
+		};
 		try
 		{
 			_context.Carts.Add(newCart);

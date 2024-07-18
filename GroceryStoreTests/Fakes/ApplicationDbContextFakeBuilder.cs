@@ -115,7 +115,8 @@ public class ApplicationDbContextFakeBuilder : IDisposable
 		_cartOne = _context.Carts.Add(
 			new Cart
 			{
-				CartId = Guid.Parse("1C892986-18F1-4DA7-2252-1FB697891A58")
+				CartId = Guid.Parse("1C892986-18F1-4DA7-2252-1FB697891A58"),
+				Created = DateTime.Now
 			}
 		);
 		return this;
@@ -126,19 +127,22 @@ public class ApplicationDbContextFakeBuilder : IDisposable
 		_cartOne = _context.Carts.Add(
 			new Cart
 			{
-				CartId = Guid.Parse("1C892986-18F1-4DA7-2252-1FB697891A58")
+				CartId = Guid.Parse("1C892986-18F1-4DA7-2252-1FB697891A58"),
+				Created = DateTime.Now
 			}
 		);
 		_cartTwo = _context.Carts.Add(
 			new Cart
 			{
-				CartId = Guid.Parse("2E892988-18F1-4DA7-2252-1FB697891A58")
+				CartId = Guid.Parse("2E892988-18F1-4DA7-2252-1FB697891A58"),
+				Created = DateTime.Now
 			}
 		);
 		_cartThree = _context.Carts.Add(
 			new Cart
 			{
-				CartId = Guid.Parse("1C892986-18F1-82AD-2252-1FB6978922FA")
+				CartId = Guid.Parse("1C892986-18F1-82AD-2252-1FB6978922FA"),
+				Created = DateTime.Now
 			}
 		);
 		return this;

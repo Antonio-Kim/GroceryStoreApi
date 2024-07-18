@@ -6,6 +6,8 @@ public class Cart
 {
 	[Required]
 	public Guid CartId { get; set; }
+	[Required]
+	public DateTime Created { get; set; }
 
 	public ICollection<Transactions>? Transactions { get; set; }
 }

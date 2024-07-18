@@ -485,3 +485,4 @@ $RECYCLE.BIN/
 
 # Migrations
 /GroceryStoreApi/Migrations/
+/GroceryStoreApi/GroceryStore.db
