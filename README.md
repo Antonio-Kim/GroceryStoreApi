@@ -10,6 +10,7 @@ There are subtle difference between the APIs:
 1. Database implementation instead of In-Memory for Products
 2. No PDF export
 3. UUID for each products
+4. ItemId returned in Carts is ProductId instead of a new ID
 
 Requirement API Endpoints have minor errors:
 

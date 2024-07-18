@@ -38,7 +38,14 @@ public class CartsController : ControllerBase
             return NotFound($"No cart with {cartId} exists.");
         }
 
-        return Ok();
+        var cartItems = await _transactionService.GetCart(cartId);
+
+        var cartInfo = new
+        {
+            items = cartItems ?? [],
+            created = cart.Created,
+        };
+        return Ok(cartInfo);
     }
 
     [HttpPost("{cartId}/items", Name = "Add Item to cart")]
@@ -49,9 +56,15 @@ public class CartsController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        await _transactionService.AddItem(cartId, input.productId, input.quantity);
+        var isCreated = await _transactionService.AddItem(cartId, input.productId, input.quantity);
 
-        return StatusCode((int)HttpStatusCode.Created);
+        var newCart = new
+        {
+            Created = isCreated,
+            ItemId = input.productId
+        };
+
+        return CreatedAtRoute("Add Item to cart", new { cartId = cartId }, newCart);
     }
 
     [HttpGet("{cartId}/items", Name = "GetItemsInCart")]
@@ -93,9 +106,9 @@ public class CartsController : ControllerBase
     }
 
     [HttpDelete("{cartId}/items/{itemId}")]
-    public async Task<IActionResult> DeleteItemInCart(string cartId, [FromBody] CartDTO input)
+    public async Task<IActionResult> DeleteItemInCart(string cartId, int itemId, [FromBody] int quantity = 1)
     {
-        var isDeleted = await _transactionService.RemoveItem(cartId, input.productId, input.quantity);
+        var isDeleted = await _transactionService.RemoveItem(cartId, itemId, quantity);
         if (!isDeleted)
         {
             return NotFound("Item was not found");
