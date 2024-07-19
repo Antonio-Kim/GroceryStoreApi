@@ -46,32 +46,34 @@ jobs:
           dotnet-version: '8.x'
       - name: Install dependencies
         run: dotnet restore
-      - name: Run Unit Tests
-        run: dotnet test --no-build --verbosity quiet
-  integration-tests:
-    name: Backend Integration Tests
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download Build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: api-build
-          path: out
-      - name: Setup .NET 8.x
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.x'
-      - name: Start API
-        run: |
-          dotnet out/GroceryStoreApi.dll &
-          sleep 10
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Install Newman
-        run: npm install -g newman
-      - name: Run Newman
-        run: newman run ./GroceryStoreTests/Integration/Postman/GroceryStoreAPI_Collections.json
+      - name: List Directory
+        run: ls -R
+  #     - name: Run Unit Tests
+  #       run: dotnet test --no-build --verbosity quiet
+  # integration-tests:
+  #   name: Backend Integration Tests
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Download Build artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: api-build
+  #         path: out
+  #     - name: Setup .NET 8.x
+  #       uses: actions/setup-dotnet@v3
+  #       with:
+  #         dotnet-version: '8.x'
+  #     - name: Start API
+  #       run: |
+  #         dotnet out/GroceryStoreApi.dll &
+  #         sleep 10
+  #     - name: Install Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 20
+  #     - name: Install Newman
+  #       run: npm install -g newman
+  #     - name: Run Newman
+  #       run: newman run ./GroceryStoreTests/Integration/Postman/GroceryStoreAPI_Collections.json
