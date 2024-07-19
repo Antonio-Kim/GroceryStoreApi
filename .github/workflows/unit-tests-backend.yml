@@ -20,4 +20,4 @@ jobs:
       - name: List Directory
         run: ls -R
       - name: Run Unit Tests
-        run: dotnet test --no-build --verbosity quiet
+        run: dotnet test --verbosity quiet

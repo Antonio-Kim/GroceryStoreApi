@@ -1,11 +1,9 @@
 name: Integration Tests
 
 on:
-  workflow_run:
-    workflows: ['Build Workflow']
-    branches: [DevOps]
-    types:
-      - completed
+  push:
+    branches:
+      - DevOps
 
 jobs:
   integration-tests:
@@ -35,4 +33,4 @@ jobs:
       - name: Install Newman
         run: npm install -g newman
       - name: Run Newman
-        run: newman run GroceryStoreTests/Integration/Postman/GroceryStoreAPI_Collections.json
+        run: newman run ./GroceryStoreTests/Integration/Postman/GroceryStoreAPI_Collections.json
