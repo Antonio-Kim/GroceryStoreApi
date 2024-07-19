@@ -126,8 +126,7 @@ public class OrdersControllerTests : IDisposable
         var result = await _sut.PostOrder(input);
 
         // Assert
-        var postResult = result as StatusCodeResult;
-        postResult.Should().NotBeNull();
+        var postResult = result as CreatedAtRouteResult;
         postResult?.StatusCode.Should().Be(201);
         var orders = await orderService.GetAllOrders();
         orders.Should().NotBeNull();
@@ -177,7 +176,7 @@ public class OrdersControllerTests : IDisposable
         var _sut = new OrdersController(cartService, orderService);
         var orderId = "2F683325-73DF-882A-351E-2E924AE8EC3C";
         var cartId = "1C892986-18F1-4DA7-2252-1FB697891A58";
-        var input = new OrderDTO
+        var input = new OrderUpdateDTO
         {
             CustomerName = "Jack Black",
             Comment = "Next-day delivery"
@@ -213,7 +212,7 @@ public class OrdersControllerTests : IDisposable
         var orderService = new OrderService(context, cartService);
         var _sut = new OrdersController(cartService, orderService);
         var orderId = "2F683325-73DF-882A-351E-2E924AE8EC3C";
-        var input = new OrderDTO
+        var input = new OrderUpdateDTO
         {
             CustomerName = "Jack Black",
             Comment = "Next-day delivery"

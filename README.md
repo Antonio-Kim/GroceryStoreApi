@@ -11,6 +11,8 @@ There are subtle difference between the APIs:
 2. No PDF export
 3. UUID for each products
 4. ItemId returned in Carts is ProductId instead of a new ID
+5. Authentication is random; there's no checking for user that has been registered
+6. Returning single Order is not the same response
 
 Requirement API Endpoints have minor errors:
 

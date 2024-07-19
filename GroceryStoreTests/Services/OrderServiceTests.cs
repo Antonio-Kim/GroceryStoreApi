@@ -102,7 +102,7 @@ public class OrderServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task AddOrder_ValidInput_ReturnsTrue()
+    public async Task AddOrder_ValidInput_ReturnsString()
     {
         // Arrange
         var context = _ctxBuilder
@@ -121,13 +121,13 @@ public class OrderServiceTests : IDisposable
         var result = await _sut.CreateOrder(cartId, customerName, comment);
 
         // Assert
-        result.Should().BeTrue();
+        result.Should().BeOfType<string>();
         var cart = await cartService.GetCartAsync(cartId);
         cart.Should().BeNull();
     }
 
     [Fact]
-    public async Task AddOrder_InvalidCartId_ReturnsTrue()
+    public async Task AddOrder_InvalidCartId_ReturnsNull()
     {
         // Arrange
         var context = _ctxBuilder
@@ -146,7 +146,7 @@ public class OrderServiceTests : IDisposable
         var result = await _sut.CreateOrder(cartId, customerName, comment);
 
         // Assert
-        result.Should().BeFalse();
+        result.Should().BeNullOrEmpty();
     }
 
     [Fact]

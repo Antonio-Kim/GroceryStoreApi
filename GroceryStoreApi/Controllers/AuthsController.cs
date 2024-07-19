@@ -16,12 +16,12 @@ public class AuthsController : ControllerBase
     private readonly IConfiguration _configuration;
     public AuthsController(IConfiguration configuration)
     {
-        _configuration = configuration;
+        _configuration = configuration ?? throw new ArgumentException(nameof(configuration));
     }
 
     [HttpPost(Name = "Register new api client")]
     [ResponseCache(NoStore = true)]
-    public async Task<ActionResult> Register(AuthDTO user)
+    public ActionResult Register(AuthDTO user)
     {
         if (!ModelState.IsValid)
         {
@@ -49,6 +49,11 @@ public class AuthsController : ControllerBase
 
         var jwtString = tokenHandler.WriteToken(jwtToken);
 
-        return StatusCode(StatusCodes.Status200OK, jwtString);
+        var result = new
+        {
+            accessToken = jwtString
+        };
+
+        return CreatedAtRoute("Register new api client", new { result = result.accessToken }, result);
     }
 }
