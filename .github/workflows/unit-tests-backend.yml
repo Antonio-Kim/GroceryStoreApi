@@ -1,12 +1,6 @@
 name: Unit Tests
 
 on:
-  push:
-    branches:
-      - DevOps
-  pull_request:
-    branches:
-      - main
   workflow_run:
     workflows: ['Build Workflow']
     types:
@@ -24,5 +18,7 @@ jobs:
           dotnet-version: '8.x'
       - name: Install dependencies
         run: dotnet restore
+      - name: List Directory
+        run: ls -R
       - name: Run Unit Tests
         run: dotnet test --no-build --verbosity quiet
