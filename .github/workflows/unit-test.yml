@@ -22,6 +22,8 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build
+      - name: Run Unit Test
+        run: dotnet test
       - name: Publish
         run: dotnet publish -c Release -o out
       - name: Upload build artifacts
