@@ -3,9 +3,8 @@ name: Unit Tests
 on:
   workflow_run:
     workflows: ['Build Workflow']
-    branches: DevOps
-    types:
-      - completed
+    types: [completed]
+    branches: [DevOps]
 
 jobs:
   unit-tests:

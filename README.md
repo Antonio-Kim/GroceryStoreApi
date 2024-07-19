@@ -30,3 +30,4 @@ Requirement API Endpoints have minor errors:
 
 - Data Seeding: https://learn.microsoft.com/en-us/ef/core/modeling/data-seeding
 - Controller Unit Testing: https://learn.microsoft.com/en-us/ef/ef6/fundamentals/testing/mocking
+- GitHub Action Workflows: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run
