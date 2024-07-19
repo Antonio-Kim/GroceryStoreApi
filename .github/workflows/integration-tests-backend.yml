@@ -3,6 +3,7 @@ name: Integration Tests
 on:
   workflow_run:
     workflows: ['Build Workflow']
+    branches: [DevOps]
     types:
       - completed
 
