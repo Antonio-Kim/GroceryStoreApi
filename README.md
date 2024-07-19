@@ -1,7 +1,6 @@
 # GroceryStore API
 
-![unit-test-backend](https://github.com/Antonio-Kim/GroceryStoreApi/actions/workflows/unit-tests-backend.yml/badge.svg)
-![integration-test-backend](https://github.com/Antonio-Kim/GroceryStoreApi/actions/workflows/integration-tests-backend.yml/badge.svg)
+![main](https://github.com/Antonio-Kim/GroceryStoreApi/actions/workflows/main.yml/badge.svg)
 ![.NET Version](https://img.shields.io/badge/.NET-8.0.x-blue)
 
 **Requirement Documentation**: https://github.com/vdespa/Postman-Complete-Guide-API-Testing/blob/main/simple-grocery-store-api.md
