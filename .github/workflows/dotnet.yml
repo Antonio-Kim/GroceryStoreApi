@@ -25,7 +25,7 @@ jobs:
       - name: Publish
         run: dotnet publish -c Release -o out
       - name: Upload build artifacts
-        run: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: api-build
           path: out
