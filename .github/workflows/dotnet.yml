@@ -37,7 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Download Build artifacts
-        run: actions/download-artifact@v4
+        uses: actions/download-artifact@v4
         with:
           name: api-build
           path: out
@@ -55,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Download Build artifacts
-        run: actions/download-artifact@v4
+        uses: actions/download-artifact@v4
         with:
           name: api-build
           path: out
