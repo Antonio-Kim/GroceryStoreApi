@@ -1,0 +1,37 @@
+name: Integration Tests
+
+on:
+  push:
+    branches:
+      - DevOps
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  integration-tests:
+    name: Run Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: api-build
+          path: out
+      - name: Setup .NET 8.x
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.x'
+      - name: Start API
+        run: |
+          dotnet out/GroceryStoreApi.dll &
+          sleep 10
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Newman
+        run: npm install -g newman
+      - name: Run Newman
+        run: newman run ./GroceryStoreTests/Integration/Postman/GroceryStoreAPI_Collections.json
