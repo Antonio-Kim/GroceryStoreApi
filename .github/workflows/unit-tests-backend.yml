@@ -4,16 +4,11 @@ on:
   push:
     branches:
       - DevOps
-  workflow_run:
-    workflows: ['Build Workflow']
-    types: [completed]
-    branches: [DevOps]
 
 jobs:
   unit-tests:
     name: Run Unit Tests
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup .NET 8.x
