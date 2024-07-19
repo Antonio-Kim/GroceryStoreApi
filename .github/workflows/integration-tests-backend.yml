@@ -31,7 +31,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: List Directory
+        run: ls -R
       - name: Install Newman
         run: npm install -g newman
       - name: Run Newman
-        run: newman run ./GroceryStoreTests/Integration/Postman/GroceryStoreAPI_Collections.json
+        run: newman run GroceryStoreTests/Integration/Postman/GroceryStoreAPI_Collections.json

@@ -21,4 +21,4 @@ jobs:
       - name: Install dependencies
         run: dotnet restore
       - name: Run Unit Tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --no-build --verbosity quiet
