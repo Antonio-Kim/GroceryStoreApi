@@ -1,12 +1,16 @@
-name: GroceryStoreApi
+name: GroceryStoreApi Backend
 
 on:
   push:
     branches:
+      - DevOps
+  pull_request:
+    branches:
       - main
 
 jobs:
-  build:
+  setup:
+    name: Setup
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,6 +21,65 @@ jobs:
       - name: Install dependencies
         run: dotnet restore
       - name: Build
-        run: dotnet build
-      - name: Test with dotnet CLI
-        run: dotnet test
+        run: dotnet build --no-restore
+      - name: Publish
+        run: dotnet publish -c Release -o out
+      - name: Upload build artifacts
+        run: actions/upload-artifact@v4
+        with:
+          name: api-build
+          path: out
+
+  unit-tests:
+    name: Backend Unit Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Build artifacts
+        run: actions/download-artifact@v4
+        with:
+          name: api-build
+          path: out
+      - name: Setup .NET 8.x
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.x'
+      - name: Run Unit Tests
+        run: dotnet test --nobuild --verbosity quiet
+
+  integration-tests:
+    name: Backend Integration Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Build artifacts
+        run: actions/download-artifact@v4
+        with:
+          name: api-build
+          path: out
+      - name: Setup .NET 8.x
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.x'
+      - name: Start API
+        run: |
+          dotnet out/GroceryStoreApi.dll &
+          sleep 10
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install Newman
+        run: npm install -g newman
+      - name: Run Newman
+        run: newman run ./GroceryStoreTests/Integration/Postman/GroceryStoreAPI_Collections.json
+
+  check-completion:
+    name: Ensure Both tests passes for backend
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests]
+    steps:
+      - name: Check Tests Status
+        run: echo "All test passes"
