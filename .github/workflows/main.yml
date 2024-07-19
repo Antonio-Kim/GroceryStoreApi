@@ -24,6 +24,8 @@ jobs:
         run: dotnet build --no-restore
       - name: Publish
         run: dotnet publish -c Release -o out
+      - name: List Build Directory
+        run: ls -R out
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -40,11 +42,13 @@ jobs:
         with:
           name: api-build
           path: out
+      - name: List Downloaded Directory
+        run: ls -R out
       - name: Setup .NET 8.x
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.x'
       - name: Install dependencies
-        run: dotnet restore
+        run: dotnet restore out/GroceryStoreApi/GroceryStoreApi.csproj
       - name: Run Unit Tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test out/GroceryStoreApi/GroceryStoreApi.csproj --no-build --verbosity normal
