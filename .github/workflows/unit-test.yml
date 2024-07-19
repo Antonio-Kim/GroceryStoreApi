@@ -1,4 +1,4 @@
-name: Unit Test
+name: main
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  build:
+  unit-test:
     name: Run Unit tests
     runs-on: ubuntu-latest
     steps:
@@ -29,4 +29,17 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
+          name: out
           path: out
+  integration-test:
+    name: Run Integration Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: out
+          path: out
+      - name: List artifact contents
+        run: ls -l out
