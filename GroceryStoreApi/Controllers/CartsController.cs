@@ -2,6 +2,7 @@ using System.Net;
 using GroceryStoreApi.DTO.Cart;
 using GroceryStoreApi.Models;
 using GroceryStoreApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

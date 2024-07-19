@@ -1,6 +1,4 @@
-using System.Security.Claims;
 using GroceryStoreApi.DTO.Order;
-using GroceryStoreApi.Models;
 using GroceryStoreApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -58,10 +56,16 @@ public class OrdersController : ControllerBase
     {
         try
         {
-            var order = await _orderService.CreateOrder(input.CartId, input.CustomerName, input.Comment);
-            if (!order) return BadRequest("Not valid ");
+            var order = await _orderService.CreateOrder(input.CartId, input?.CustomerName, input?.Comment);
+            if (order == null) return BadRequest("Not valid");
 
-            return StatusCode(201);
+            var response = new
+            {
+                created = true,
+                orderId = order
+            };
+
+            return StatusCode(201, response);
         }
         catch (Exception ex)
         {
@@ -70,7 +74,7 @@ public class OrdersController : ControllerBase
     }
 
     [HttpPatch("{orderId}", Name = "Update an order")]
-    public async Task<IActionResult> UpdateOrder(string orderId, [FromBody] OrderDTO input)
+    public async Task<IActionResult> UpdateOrder(string orderId, [FromBody] OrderUpdateDTO input)
     {
         try
         {

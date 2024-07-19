@@ -16,15 +16,15 @@ public class OrderService : IOrderService
         _cartService = cartService;
     }
 
-    public async Task<bool> CreateOrder(string cartId, string customerName, string? comment = "")
+    public async Task<string> CreateOrder(string cartId, string customerName, string? comment = "")
     {
         if (!Guid.TryParseExact(cartId, "D", out Guid CartId))
         {
-            return false;
+            return null;
         }
 
         var cart = await _cartService.GetCartAsync(cartId);
-        if (cart == null) return false;
+        if (cart == null) return null;
 
         var order = new Order
         {
@@ -39,7 +39,7 @@ public class OrderService : IOrderService
             await _context.Orders.AddAsync(order);
             await _cartService.DeleteCartAsync(cartId);
             await _context.SaveChangesAsync();
-            return true;
+            return order.OrderId.ToString();
         }
         catch (DbException ex)
         {
@@ -98,8 +98,8 @@ public class OrderService : IOrderService
             {
                 OrderId = OrderId,
                 CartId = order.CartId,
-                CustomerName = customerName,
-                Comment = comment
+                CustomerName = customerName ?? order.CustomerName,
+                Comment = comment ?? order.Comment,
             };
             _context.Orders.Remove(order);
             _context.Orders.Add(updatedOrder);
