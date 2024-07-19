@@ -13,18 +13,18 @@ jobs:
     name: Run Unit tests
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET 8.x
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.x'
-    - name: Install dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build
-    - name: Publish
+      - uses: actions/checkout@v4
+      - name: Setup .NET 8.x
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.x'
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build
+      - name: Publish
         run: dotnet publish -c Release -o out
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        path: out
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: out
