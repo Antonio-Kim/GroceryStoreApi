@@ -57,6 +57,6 @@ jobs:
       - name: Install Newman
         run: npm install -g newman
       - name: check status of the api
-        run: curl localhost:5000/status
+        run: curl http://localhost:5000/status
       # - name: Run Integration tests
       #   run: newman run ./GroceryStoreTests/Integration/Postman/GroceryStoreAPI_Collections.json
