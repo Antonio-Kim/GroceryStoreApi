@@ -46,7 +46,7 @@ jobs:
         run: ls -lR
       - name: Start API
         run: |
-          dotnet run ./GroceryStoreApi
+          dotnet run --project ./GroceryStoreApi
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
