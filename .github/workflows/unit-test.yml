@@ -46,16 +46,11 @@ jobs:
         run: ls -lR
       - name: Start API
         run: |
-          nohup dotnet out/GroceryStoreApi.dll > api.log 2>&1 &
-          echo $! > api_pid
-      - name: Check API log
-        run: cat api.log
+          dotnet run ./GroceryStoreApi
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: List Directory
-        run: ls -R
       - name: Install Newman
         run: npm install -g newman
       - name: check status of the api
