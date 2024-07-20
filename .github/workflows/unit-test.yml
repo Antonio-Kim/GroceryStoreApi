@@ -50,16 +50,20 @@ jobs:
         run: npm install -g newman
       - name: check status of the api
         run: curl http://localhost:5000/status
-      - name: Start API
+      - name: Start API and run tests
         run: |
           dotnet run --project ./GroceryStoreApi > api.log 2>&1 &
           API_PID=$!
           echo "Waiting for API to start..."
           sleep 20
           echo "Checking API status..."
-          curl http://localhost:5000/status || (cat api.log && exit 1)
-          # echo "Running Postman tests..."
-          # newman run your_postman_collection.json  # Replace with your actual collection file
+          if curl --silent --fail http://localhost:5000/status; then
+            echo "API is up and running."
+          else
+            echo "API failed to start. Printing logs:"
+            cat api.log
+            exit 1
+          fi
           echo "Killing API process..."
           kill $API_PID
 
