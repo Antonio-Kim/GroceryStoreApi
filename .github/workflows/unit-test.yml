@@ -46,8 +46,8 @@ jobs:
         run: ls -lR
       - name: Start API
         run: |
-          dotnet out/GroceryStoreApi.dll &
-          sleep 10
+          dotnet out/GroceryStoreApi.dll > api.log 2>&1 &
+          echo $! > api_pid
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
