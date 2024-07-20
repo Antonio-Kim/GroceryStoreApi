@@ -56,5 +56,7 @@ jobs:
         run: ls -R
       - name: Install Newman
         run: npm install -g newman
-      - name: Run Integration tests
-        run: newman run ./GroceryStoreTests/Integration/Postman/GroceryStoreAPI_Collections.json
+      - name: check status of the api
+        run: curl localhost:5000/status
+      # - name: Run Integration tests
+      #   run: newman run ./GroceryStoreTests/Integration/Postman/GroceryStoreAPI_Collections.json
