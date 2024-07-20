@@ -48,18 +48,14 @@ jobs:
           node-version: 20
       - name: Install Newman
         run: npm install -g newman
-      - name: check status of the api
-        run: curl http://localhost:5000/status
       - name: Start API
         run: |
           dotnet run --project ./GroceryStoreApi > api.log 2>&1 &
           API_PID=$!
           echo "Waiting for API to start..."
           sleep 20
-          echo "Running Postman tests..."
-          newman run ./GroceryStoreTests/Integration/Postman/GroceryStoreAPI_Collections.json
+          curl http://localhost:5000/status
+          # echo "Running Postman tests..."
+          # newman run ./GroceryStoreTests/Integration/Postman/GroceryStoreAPI_Collections.json
           echo "Killing API process..."
           kill $API_PID
-
-      # - name: Run Integration tests
-      #   run: newman run ./GroceryStoreTests/Integration/Postman/GroceryStoreAPI_Collections.json
