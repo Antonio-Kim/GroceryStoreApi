@@ -43,4 +43,16 @@ jobs:
           name: out
           path: out
       - name: List artifact contents
-        run: ls -l out
+        run: ls -lR
+      - name: Start API
+        run: |
+          dotnet out/GroceryStoreApi.dll &
+          sleep 10
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: List Directory
+        run: ls -R
+      - name: Install Newman
+        run: npm install -g newman
