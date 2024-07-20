@@ -42,11 +42,6 @@ jobs:
         with:
           name: out
           path: out
-      - name: List artifact contents
-        run: ls -lR
-      - name: Start API
-        run: |
-          dotnet run --project ./GroceryStoreApi
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
@@ -55,5 +50,16 @@ jobs:
         run: npm install -g newman
       - name: check status of the api
         run: curl http://localhost:5000/status
+      - name: Start API
+        run: |
+          dotnet run --project ./GroceryStoreApi &
+          API_PID=$!
+          echo "waiting for api to start..."
+          sleep 10
+          echo "Running Postman tests"
+          curl http://localhost:5000/status
+          echo "Killing API process"
+          kill $API_PID
+
       # - name: Run Integration tests
       #   run: newman run ./GroceryStoreTests/Integration/Postman/GroceryStoreAPI_Collections.json
