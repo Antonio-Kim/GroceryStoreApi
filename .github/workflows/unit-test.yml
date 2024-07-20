@@ -19,13 +19,14 @@ jobs:
         with:
           dotnet-version: '8.x'
       - name: Install dependencies
-        run: dotnet restore
+        run: dotnet restore GroceryStoreApi/GroceryStoreApi.csproj
       - name: Build
-        run: dotnet build
+        run: |
+          dotnet build GroceryStoreApi/GroceryStoreApi.csproj -c Release
       - name: Run Unit Test
-        run: dotnet test
+        run: dotnet test GroceryStoreApi/GroceryStoreApi.csproj
       - name: Publish
-        run: dotnet publish -c Release -o out
+        run: dotnet publish GroceryStoreApi/GroceryStoreApi.csproj -c Release -o out
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -53,7 +54,7 @@ jobs:
           dotnet ./out/GroceryStoreApi.dll &
           API_PID=$!
           echo "Waiting for API to start..."
-          sleep 20
+          sleep 10
           curl http://localhost:5000/status
           curl http://localhost:5000/products
           # echo "Running Postman tests..."
