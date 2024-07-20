@@ -1,6 +1,6 @@
 # GroceryStore API
 
-![Main](https://github.com/Antonio-Kim/GroceryStoreApi/actions/workflows/dotnet.yml/badge.svg?branch=main)
+![main](https://github.com/Antonio-Kim/GroceryStoreApi/actions/workflows/unit-test.yml/badge.svg)
 ![.NET Version](https://img.shields.io/badge/.NET-8.0.x-blue)
 
 **Requirement Documentation**: https://github.com/vdespa/Postman-Complete-Guide-API-Testing/blob/main/simple-grocery-store-api.md
@@ -29,3 +29,4 @@ Requirement API Endpoints have minor errors:
 
 - Data Seeding: https://learn.microsoft.com/en-us/ef/core/modeling/data-seeding
 - Controller Unit Testing: https://learn.microsoft.com/en-us/ef/ef6/fundamentals/testing/mocking
+- GitHub Action Workflows: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run

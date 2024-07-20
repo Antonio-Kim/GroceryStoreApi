@@ -1,0 +1,63 @@
+name: main
+
+on:
+  push:
+    branches:
+      - DevOps
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  unit-test:
+    name: Run Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET 8.x
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.x'
+      - name: Install dependencies
+        run: dotnet restore GroceryStoreApi/GroceryStoreApi.csproj
+      - name: Build
+        run: |
+          dotnet build GroceryStoreApi/GroceryStoreApi.csproj -c Release
+      - name: Run Unit Test
+        run: dotnet test GroceryStoreApi/GroceryStoreApi.csproj
+      - name: Publish
+        run: dotnet publish GroceryStoreApi/GroceryStoreApi.csproj -c Release -o out
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: out
+          path: out
+  integration-test:
+    name: Run Integration Test
+    runs-on: ubuntu-latest
+    needs: unit-test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: out
+          path: out
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Newman
+        run: npm install -g newman
+      - name: Start API
+        run: |
+          dotnet ./out/GroceryStoreApi.dll &
+          API_PID=$!
+          echo "Waiting for API to start..."
+          sleep 10
+          curl http://localhost:5000/status
+          curl http://localhost:5000/products
+          # echo "Running Postman tests..."
+          # newman run ./GroceryStoreTests/Integration/Postman/GroceryStoreAPI_Collections.json
+          echo "Killing API process..."
+          kill $API_PID
