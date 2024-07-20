@@ -58,8 +58,8 @@ jobs:
           sleep 20
           echo "Checking API status..."
           curl http://localhost:5000/status || (cat api.log && exit 1)
-          echo "Running Postman tests..."
-          newman run your_postman_collection.json  # Replace with your actual collection file
+          # echo "Running Postman tests..."
+          # newman run your_postman_collection.json  # Replace with your actual collection file
           echo "Killing API process..."
           kill $API_PID
 
